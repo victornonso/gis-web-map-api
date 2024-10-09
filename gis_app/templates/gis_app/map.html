@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIS Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/map.css' %}">
+</head>
+<body>
+    <h1>My GIS Map</h1>
+    <div id="map"></div>
+
+    <!-- Form to capture point data -->
+    <div id="form">
+        <label for="name">Point Name:</label>
+        <input type="text" id="name" required><br><br>
+        <button id="savePoint">Save Point</button>
+        <button id="cancel">Cancel</button>
+    </div>
+
+        <!-- Small edit form to appear below the marker -->
+    <div id="smallEditForm">
+        <input type="text" id="smallEditInput" placeholder="Edit point name"><br>
+        <button id="smallSaveEdit">Save</button>
+        <button id="smallCancelEdit">Cancel</button>
+    </div>
+
+
+    <!-- Search Form -->
+    <div id="searchForm">
+        <input type="text" id="searchInput" placeholder="Search by name">
+        <button id="searchButton">Search</button>
+    </div>
+
+    <!-- modal section -->
+    <div id="markerModal" style="display: none;">
+        <h3 id="pointTitle"></h3>
+        <button id="editPoint">Edit</button>
+        <button id="deletePoint">Delete</button>
+        <button id="savePointChanges" style="display: none;">Save</button>
+        <br><br>
+        <label for="editName" style="display: none;">Edit Name:</label>
+        <input type="text" id="editName" style="display: none;">
+    </div>
+
+    <button id="addPointBtn">Add New Point</button>
+
+    <!-- Pass the api_points_url using a data attribute -->
+    <div id="mapContainer" data-api-url="{{ api_points_url }}"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+</body>
+</html>
