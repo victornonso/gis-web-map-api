@@ -28,7 +28,7 @@ DEBUG = False
 
 # ALLOWED_HOSTS = ['https://victornonso.pythonanywhere.com/', '127.0.0.1', 'localhost']
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['victornonso.pythonanywhere.com','localhost', '127.0.0.1']
 
 # Application definition
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django.contrib.admin',
     'django.contrib.gis',
-    'django.contrib.auth',
+    'django.contrib.auth',  
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'gis_web_api.urls'
@@ -83,14 +84,16 @@ WSGI_APPLICATION = 'gis_web_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis_data',
-        'USER': 'victornonso',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
+        'NAME': 'ipnxgiedb',
+        'USER': 'victor_okeke',
+        'PASSWORD': 'V1ct0r@Gi3',
+        'HOST': '10.50.1.69',
         'PORT': '5432',
+        'OPTIONS': {
+            'options': '-c search_path=design'
     }
 }
-
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

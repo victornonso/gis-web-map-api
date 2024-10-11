@@ -48,8 +48,14 @@
 
     <button id="addPointBtn">Add New Point</button>
 
-    <!-- Pass the api_points_url using a data attribute -->
-    <div id="mapContainer" data-api-url="{{ api_points_url }}"></div>
+    <!-- Pass the api_points_url using a data attribute
+    <div id="mapContainer" data-api-url="{{ api_points_url }}"></div> -->
+
+    <div id="mapContainer" 
+         data-point-url="{{ point_url }}" 
+         data-lines-url="{{ api_lines_url }}" 
+         data-polygons-url="{{ api_polygons_url }}">
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="{% static 'js/map.js' %}"></script>

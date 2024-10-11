@@ -9,8 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }).addTo(map);
 
     // Get the API URL from the data attribute in the HTML
-    var apiPointsUrl = document.getElementById('mapContainer').getAttribute('data-api-url');
 
+    var apiPointsUrl = document.getElementById('mapContainer').getAttribute('data-point-url');
+    var apiLinesUrl = document.getElementById('mapContainer').getAttribute('data-lines-url');
+    var apiPolygonsUrl = document.getElementById('mapContainer').getAttribute('data-polygons-url');
+
+    
     var markers = [];
 
     // Fetch points from API and add them to the map
@@ -33,16 +37,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     let targetPoint;
                     if (lastUpdatedId) {
                         // Find the point with the stored ID in the fetched data
-                        targetPoint = data.find(point => point.id === parseInt(lastUpdatedId));
+                        targetPoint = data.find(point => point.structure_id === parseInt(lastUpdatedId));
                     }
 
                     // If we have a target point, center on it; otherwise, default to first point
                     if (targetPoint) {
-                        var coordinates = extractCoordinates(targetPoint.location);
+                        var coordinates = extractCoordinates(targetPoint.geom);
                         map.setView([coordinates.lat, coordinates.lng], 16);
                     } else {
                         var firstPoint = data[0];
-                        var coordinates = extractCoordinates(firstPoint.location);
+                        var coordinates = extractCoordinates(firstPoint.geom);
                         map.setView([coordinates.lat, coordinates.lng], 16);
                     }
                 } else {
@@ -52,39 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Helper function to extract latitude and longitude from WKT (POINT format)
-    function extractCoordinates(location) {
-        var coordinates = location.match(/POINT \(([^)]+)\)/)[1].split(" ");
+    function extractCoordinates(geom) {
+        var coordinates = geom.match(/POINT \(([^)]+)\)/)[1].split(" ");
         return {
             lng: parseFloat(coordinates[0]),
             lat: parseFloat(coordinates[1])
         };
     }
-
-    // Add points to map with markers and tooltips with Edit/Delete buttons
-    function addPointsToMap(points) {
-        points.forEach(point => {
-            var coordinates = extractCoordinates(point.location);
-            var marker = L.marker([coordinates.lat, coordinates.lng])
-                .addTo(map)
-                .bindPopup(getPopupContent(point.name, point.id));
-
-            markers.push(marker);
-
-            // Event listener for when the marker is clicked
-            marker.on('popupopen', function() {
-                // Add event listener for Edit button
-                document.getElementById(`editBtn-${point.id}`).addEventListener('click', function() {
-                    openEditForm(marker, point);
-                });
-
-                // Add event listener for Delete button
-                document.getElementById(`deleteBtn-${point.id}`).addEventListener('click', function() {
-                    deletePoint(point.id);
-                });
-            });
-        });
-    }
-
+    
     // Generate popup content with Edit and Delete buttons
     function getPopupContent(pointName, pointId) {
         return `
@@ -95,6 +74,32 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
+
+    // Add points to map with markers and tooltips with Edit/Delete buttons
+    function addPointsToMap(points) {
+        points.forEach(point => {
+            var coordinates = extractCoordinates(point.geom);  // Update 'location' to 'geom'
+            var marker = L.marker([coordinates.lat, coordinates.lng])
+                .addTo(map)
+                .bindPopup(getPopupContent(point.structure_name, point.structure_id));
+
+            markers.push(marker);
+
+            // Event listener for when the marker is clicked
+            marker.on('popupopen', function() {
+                // Add event listener for Edit button
+                document.getElementById(`editBtn-${point.structure_id}`).addEventListener('click', function() {
+                    openEditForm(marker, point);
+                });
+
+                // Add event listener for Delete button
+                document.getElementById(`deleteBtn-${point.structure_id}`).addEventListener('click', function() {
+                    deletePoint(point.id);
+                });
+            });
+        });
+    }
+
 
     // Open a small form for editing just below the clicked marker
     function openEditForm(marker, point) {
@@ -118,28 +123,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const newName = input.value;
         
             // Use the original location coordinates from the point object
-            const updatedLocation = point.location;
+            const updatedLocation = point.geom;
         
-            fetch(apiPointsUrl.replace(/\/$/, '') + '/' + point.id + '/', {
+            fetch(apiPointsUrl.replace(/\/$/, '') + '/' + point.structure_id + '/', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     name: newName,          // Updated name
-                    location: updatedLocation  // Original location coordinates
+                    geom: updatedLocation  // Original location coordinates
                 })
             })
             .then(response => {
                 if (response.ok) {
                     // Store the updated point ID in localStorage
-                    localStorage.setItem('lastUpdatedPointId', point.id);
+                    localStorage.setItem('lastUpdatedPointId', point.structure_id);
                     fetchPoints();  // Refresh points on the map
                     form.style.display = 'none';  // Hide the form after saving
                 } else {
                     return response.json().then(errorData => {
                         console.error("Error:", errorData);
-                        alert("Failed to update the point: " + (errorData.location || errorData.name).join(", "));
+                        alert("Failed to update the point: " + (errorData.geom || errorData.name).join(", "));
                     });
                 }
             });
@@ -189,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save the new point via POST request
     document.getElementById('savePoint').addEventListener('click', function() {
         var pointName = document.getElementById('name').value;
-
+    
         if (pointName && selectedLatLng) {
             fetch(apiPointsUrl, {
                 method: 'POST',
@@ -198,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     name: pointName,
-                    location: {
+                    geom: {          // Change 'location' to 'geom'
                         x: selectedLatLng.lng,
                         y: selectedLatLng.lat
                     }
@@ -206,9 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                // Store the newly added point ID in localStorage
-                localStorage.setItem('lastUpdatedPointId', data.id);
-                
+                localStorage.setItem('lastUpdatedPointId', data.structure_id);
                 fetchPoints();
                 document.getElementById('form').style.display = 'none';
                 selectedLatLng = null;
@@ -216,6 +219,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    
+
+    // Initial load of points
+    fetchPoints();
 
     // Cancel adding a point
     document.getElementById('cancel').addEventListener('click', function() {
