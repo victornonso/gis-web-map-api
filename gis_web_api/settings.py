@@ -28,7 +28,7 @@ DEBUG = False
 
 # ALLOWED_HOSTS = ['https://victornonso.pythonanywhere.com/', '127.0.0.1', 'localhost']
 
-ALLOWED_HOSTS = ['victornonso.pythonanywhere.com','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['victornonso.pythonanywhere.com']
 
 # Application definition
 
