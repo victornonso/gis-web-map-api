@@ -1,26 +1,3 @@
-# from django.db import models
-# # Create your models here.
-# from django.contrib.gis.db import models
-
-# class PointFeature(models.Model):
-#     name = models.CharField(max_length=100)
-#     location = models.PointField(srid=4326)
-#     def __str__(self):
-#         return self.name
-
-# class LineFeature(models.Model):
-#     name = models.CharField(max_length=100)
-#     path = models.LineStringField(srid=4326)
-#     def __str__(self):
-#         return self.name
-
-# class PolygonFeature(models.Model):
-#     name = models.CharField(max_length=100)
-#     area = models.PolygonField(srid=4326)  # Specify the spatial reference system (SRID)
-
-#     def __str__(self):
-#         return self.name
-
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 
@@ -56,7 +33,7 @@ class Handhole(models.Model):
     class Meta:
         managed = False  # Tell Django not to manage the table (no migrations)
         db_table = 'handhole'  # Specify the existing table name
-        # Specify the schema where the table resides
+        
 
     def __str__(self):
         return self.structure_name

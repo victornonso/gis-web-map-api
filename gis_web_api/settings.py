@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,14 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tct5%adz*y@+ij&qt&28$h&euj$cf&uit1jp6=g$e7*bmogl!l'
+SECRET_KEY = 'SECRET_KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG') == 'True'
 
-# ALLOWED_HOSTS = ['https://victornonso.pythonanywhere.com/', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['https://victornonso.pythonanywhere.com/', '127.0.0.1', 'localhost']
 
-ALLOWED_HOSTS = ['victornonso.pythonanywhere.com']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -46,6 +49,11 @@ INSTALLED_APPS = [
     'gis_app'
 
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 3,  # Number of items per page
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,16 +91,13 @@ WSGI_APPLICATION = 'gis_web_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'ipnxgiedb',
-        'USER': 'victor_okeke',
-        'PASSWORD': 'V1ct0r@Gi3',
-        'HOST': '10.50.1.69',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c search_path=design'
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Use your database engine
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),  # Default Postgres port
     }
-}
 }
 
 # Password validation
@@ -129,8 +134,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/gis_app/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'gis_web_api/static')
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
