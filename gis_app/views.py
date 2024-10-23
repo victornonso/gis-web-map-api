@@ -61,6 +61,7 @@ class HandholeViewSet(viewsets.ModelViewSet):
     filterset_fields = ['structure_name', 'deployment_status', 'sub_area_id']
     search_fields = ['structure_name', 'physical_address']
     ordering_fields = ['structure_name', 'createdat']
+    http_method_names = ['get', 'head', 'options']
     
 
 

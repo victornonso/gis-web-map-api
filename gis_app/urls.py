@@ -12,5 +12,6 @@ router.register(r'polygons', PolygonFeatureViewSet)
 urlpatterns = [
     path('', include(router.urls)),  # Registers the /handholes/, /lines/, and /polygons/ endpoints
     path('map/', map_view, name='map_view'),  # Registers the /map/ endpoint
-    path('map/handholes/', HandholeViewSet.as_view({'get': 'list', 'post': 'create'}), name='map_handholes'),  # Adding /map/handholes/ endpoint
+    # path('map/handholes/', HandholeViewSet.as_view({'get'}), name='map_handholes'),  # Adding /map/handholes/ endpoint
+    # path('map/handholes/', HandholeViewSet.as_view({'get': 'list', 'post': 'create'}), name='map_handholes'),  # Adding /map/handholes/ endpoint
 ]
