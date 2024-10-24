@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
+
 
 load_dotenv()
 
@@ -76,6 +78,18 @@ MIDDLEWARE = [
     
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True  
+
+# Include headers necessary for your API (custom headers, if needed)
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'contenttype',
+    'authorization',
+    'Access-Control-Allow-Origin',
+]
+
+# If you want to allow credentials (optional)
+CORS_ALLOW_CREDENTIALS = True#remove when in production
+
 ROOT_URLCONF = 'gis_web_api.urls'
 
 TEMPLATES = [
@@ -96,7 +110,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gis_web_api.wsgi.application'
 
-CORS_ALLOW_ALL_ORIGINS = True  #remove when in production
+
 
 DATABASES = {
     'default': {
