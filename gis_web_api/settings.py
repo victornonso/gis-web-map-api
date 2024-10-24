@@ -32,6 +32,7 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
+
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
@@ -95,7 +96,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gis_web_api.wsgi.application'
 
-
+CORS_ALLOW_ALL_ORIGINS = True  #remove when in production
 
 DATABASES = {
     'default': {
