@@ -96,7 +96,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 ]
 
 # # If you want to allow credentials (optional)
-# CORS_ALLOW_CREDENTIALS = True#remove when in production
+CORS_ALLOW_CREDENTIALS = True#remove when in production
 
 ROOT_URLCONF = 'gis_web_api.urls'
 
