@@ -40,8 +40,8 @@ class HandholeViewSet(viewsets.ModelViewSet):
     search_fields = ['structure_name', 'physical_address']
     ordering_fields = ['structure_name', 'createdat']
     http_method_names = ['get', 'head', 'options']
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny]
 
     
 
@@ -54,8 +54,8 @@ class LineFeatureViewSet(viewsets.ModelViewSet):
     search_fields = ['cable_id', 'span_id']
     ordering_fields = ['cable_id', 'createdat']
     http_method_names = ['get', 'head', 'options']
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny]
 
 
 
@@ -68,8 +68,8 @@ class PolygonFeatureViewSet(viewsets.ModelViewSet):
     search_fields = ['parcel_name', 'physical_address']
     ordering_fields = ['parcel_name', 'createdat']
     http_method_names = ['get', 'head', 'options']
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny]
 
 
 def map_view(request):
