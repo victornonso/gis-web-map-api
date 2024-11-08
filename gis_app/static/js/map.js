@@ -9,13 +9,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }).addTo(map);
 
     // Get the API URL from the data attribute in the HTML
-
     var apiPointsUrl = document.getElementById('mapContainer').getAttribute('data-point-url');
     var apiLinesUrl = document.getElementById('mapContainer').getAttribute('data-lines-url');
     var apiPolygonsUrl = document.getElementById('mapContainer').getAttribute('data-polygons-url');
 
-    
     var markers = [];
+
+    // Retrieve JWT token from localStorage
+    // var jwtToken = localStorage.getItem('jwtToken'); // Ensure this is set after login
+
+    var jwtToken = ''
+    // Helper function to add JWT to request headers
+    function getHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
+        };
+    }
+
+    console.log('Headers:', getHeaders());
+
 
     // Fetch points from API and add them to the map
     function fetchPoints(query = '') {
@@ -23,36 +36,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (query) {
             url += `?search=${query}`;
         }
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    clearMarkers();  
-                    addPointsToMap(data);
 
-                    // Check localStorage for last updated point
-                    const lastUpdatedId = localStorage.getItem('lastUpdatedPointId');
+        fetch(url, {
+            headers: getHeaders()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                clearMarkers();
+                addPointsToMap(data);
 
-                    let targetPoint;
-                    if (lastUpdatedId) {
-                        // Find the point with the stored ID in the fetched data
-                        targetPoint = data.find(point => point.structure_id === parseInt(lastUpdatedId));
-                    }
+                // Check localStorage for last updated point
+                const lastUpdatedId = localStorage.getItem('lastUpdatedPointId');
 
-                    // If we have a target point, center on it; otherwise, default to first point
-                    if (targetPoint) {
-                        var coordinates = extractCoordinates(targetPoint.geom);
-                        map.setView([coordinates.lat, coordinates.lng], 16);
-                    } else {
-                        var firstPoint = data[0];
-                        var coordinates = extractCoordinates(firstPoint.geom);
-                        map.setView([coordinates.lat, coordinates.lng], 16);
-                    }
-                } else {
-                    alert("Point not available");
+                let targetPoint;
+                if (lastUpdatedId) {
+                    // Find the point with the stored ID in the fetched data
+                    targetPoint = data.find(point => point.structure_id === parseInt(lastUpdatedId));
                 }
-            });
+
+                // If we have a target point, center on it; otherwise, default to first point
+                if (targetPoint) {
+                    var coordinates = extractCoordinates(targetPoint.geom);
+                    map.setView([coordinates.lat, coordinates.lng], 16);
+                } else {
+                    var firstPoint = data[0];
+                    var coordinates = extractCoordinates(firstPoint.geom);
+                    map.setView([coordinates.lat, coordinates.lng], 16);
+                }
+            } else {
+                alert("Point not available");
+            }
+        });
     }
 
     // Helper function to extract latitude and longitude from WKT (POINT format)
@@ -78,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add points to map with markers and tooltips with Edit/Delete buttons
     function addPointsToMap(points) {
         points.forEach(point => {
-            var coordinates = extractCoordinates(point.geom);  // Update 'location' to 'geom'
+            var coordinates = extractCoordinates(point.geom);
             var marker = L.marker([coordinates.lat, coordinates.lng])
                 .addTo(map)
                 .bindPopup(getPopupContent(point.structure_name, point.structure_id));
@@ -94,12 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Add event listener for Delete button
                 document.getElementById(`deleteBtn-${point.structure_id}`).addEventListener('click', function() {
-                    deletePoint(point.id);
+                    deletePoint(point.structure_id);
                 });
             });
         });
     }
-
 
     // Open a small form for editing just below the clicked marker
     function openEditForm(marker, point) {
@@ -107,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const input = document.getElementById('smallEditInput');
         
         // Set the input value to current point name
-        input.value = point.name;
+        input.value = point.structure_name;
 
         // Get the pixel position of the marker and position the form accordingly
         const markerLatLng = marker.getLatLng();
@@ -121,18 +135,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add an event listener for saving the changes
         document.getElementById('smallSaveEdit').onclick = function() {
             const newName = input.value;
-        
+
             // Use the original location coordinates from the point object
             const updatedLocation = point.geom;
-        
+
             fetch(apiPointsUrl.replace(/\/$/, '') + '/' + point.structure_id + '/', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: getHeaders(),
                 body: JSON.stringify({
-                    name: newName,          // Updated name
-                    geom: updatedLocation  // Original location coordinates
+                    name: newName,          
+                    geom: updatedLocation  
                 })
             })
             .then(response => {
@@ -160,7 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function deletePoint(pointId) {
         if (confirm('Are you sure you want to delete this point?')) {
             fetch(apiPointsUrl.replace(/\/$/, '') + '/' + pointId + '/', {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: getHeaders()
             }).then(response => {
                 if (response.ok) {
                     fetchPoints();
@@ -174,9 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
         markers.forEach(marker => map.removeLayer(marker));
         markers = [];
     }
-
-    // Initial load of points
-    fetchPoints();
 
     // Handle adding a new point by clicking on the map
     var selectedLatLng = null;
@@ -194,16 +204,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Save the new point via POST request
     document.getElementById('savePoint').addEventListener('click', function() {
         var pointName = document.getElementById('name').value;
-    
+
         if (pointName && selectedLatLng) {
             fetch(apiPointsUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: getHeaders(),
                 body: JSON.stringify({
                     name: pointName,
-                    geom: {          // Change 'location' to 'geom'
+                    geom: {
                         x: selectedLatLng.lng,
                         y: selectedLatLng.lat
                     }
@@ -219,7 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
 
     // Initial load of points
     fetchPoints();

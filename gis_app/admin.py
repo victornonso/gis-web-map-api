@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Handhole, LineFeature, PolygonFeature
+from .models import Handhole, FeederCable, ParcelDemography
 
 # Register the models
 admin.site.register(Handhole)
-admin.site.register(LineFeature)
-admin.site.register(PolygonFeature)
+admin.site.register(FeederCable)
+admin.site.register(ParcelDemography)
